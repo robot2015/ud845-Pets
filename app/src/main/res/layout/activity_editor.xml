@@ -45,6 +45,7 @@
                 android:id="@+id/edit_pet_name"
                 style="@style/EditorFieldStyle"
                 android:hint="@string/hint_pet_name"
+                android:importantForAutofill="no"
                 android:inputType="textCapWords" />
 
             <!-- Breed field -->
@@ -52,6 +53,7 @@
                 android:id="@+id/edit_pet_breed"
                 style="@style/EditorFieldStyle"
                 android:hint="@string/hint_pet_breed"
+                android:importantForAutofill="no"
                 android:inputType="textCapWords" />
         </LinearLayout>
     </LinearLayout>
@@ -115,6 +117,7 @@
                 android:id="@+id/edit_pet_weight"
                 style="@style/EditorFieldStyle"
                 android:hint="@string/hint_pet_weight"
+                android:importantForAutofill="no"
                 android:inputType="number" />
 
             <!-- Units for weight (kg) -->

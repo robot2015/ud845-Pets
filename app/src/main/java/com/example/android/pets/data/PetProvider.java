@@ -16,10 +16,13 @@ public class PetProvider extends ContentProvider {
 
     // Tag for the log messages.
     private static final String LOG_TAG = PetProvider.class.getSimpleName();
+
     // URI matcher code for the content URI for the pets table.
     private static final int PETS = 100;
+
     // URI matcher code for the content URI for a single pet in the pets table.
     private static final int PET_ID = 101;
+
     // UriMatcher object to match a content URI to a corresponding code.
     // The input passed into the constructor represents the code to return for the root URI.
     // It's common to use NO_MATCH as the input for this case.
@@ -81,6 +84,10 @@ public class PetProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Cannot query unknown URI " + uri);
         }
+
+        // Set notification URI on the cursor.
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
+
         return cursor;
     }
 
@@ -126,6 +133,9 @@ public class PetProvider extends ContentProvider {
             Log.e(LOG_TAG, "Failed to insert row for " + uri);
             return null;
         }
+
+        // Notify all listeners that the data has changed for the put content URI.
+        getContext().getContentResolver().notifyChange(uri, null);
 
         // Return the new URI with the ID (of the newly inserted row) appended at the end.
         return ContentUris.withAppendedId(uri, id);
@@ -196,7 +206,10 @@ public class PetProvider extends ContentProvider {
             return 0;
         }
 
-        return id;
+        // Notify all URI change listeners.
+        getContext().getContentResolver().notifyChange(uri, null);
+
+        return database.update(PetEntry.TABLE_NAME, values, selection, selectionArgs);
     }
 
     // Delete the data at the given selection and selection arguments.
@@ -205,12 +218,21 @@ public class PetProvider extends ContentProvider {
         // Get writable database
         SQLiteDatabase database = petDbHelper.getWritableDatabase();
 
+        // Track the number of rows that were deleted
+        int rowsDeleted;
+
         final int match = uriMatcher.match(uri);
         switch (match) {
             case PETS:
+                // Notify all listeners that the data has changed for the put content URI.
+                getContext().getContentResolver().notifyChange(uri, null);
+
                 // Delete all rows that match the selection and selection args.
                 return database.delete(PetEntry.TABLE_NAME, selection, selectionArgs);
             case PET_ID:
+                // Notify all listeners that the data has changed for the put content URI.
+                getContext().getContentResolver().notifyChange(uri, null);
+
                 // Delete a single row given by the ID in the URI.
                 String selection1 = PetEntry._ID + "=?";
                 String[] selectionArgs1 = new String[]{String.valueOf(ContentUris.parseId(uri))};
